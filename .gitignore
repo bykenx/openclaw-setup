@@ -1,0 +1,15 @@
+/openclaw
+/data
+
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+.venv/
+.env
+.env.*
+
+.DS_Store
+*.log
+
+/tmp
