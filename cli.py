@@ -98,6 +98,14 @@ def _resolve_compose_cmd() -> list[str]:
     raise SetupError("未找到 podman-compose 或 podman")
 
 
+def _print_session_persistence_hint() -> None:
+    print(
+        "提示：rootless Podman 容器可能会在所有 SSH 会话退出后被系统回收。"
+        "如需保持后台运行，可启用 lingering：sudo loginctl enable-linger $(id -un)。",
+        file=sys.stderr,
+    )
+
+
 def _resolve_runtime_context(
     base_env: dict[str, str] | None = None,
 ) -> dict[str, str]:
@@ -252,6 +260,7 @@ def cmd_setup(ctx: dict[str, str], *, with_browser: bool = False) -> int:
         _ensure_minimal_openclaw_config(config_dir, gateway_port=gateway_port, with_browser=with_browser)
         _run([*compose, "-f", str(COMPOSE_FILE), "up", "-d", "--build"], env=env)
 
+    _print_session_persistence_hint()
     if _prompt_yes_no("是否继续进行交互式配置向导？", default_yes=True):
         _run_openclaw_cli(ctx, ["configure"])
     return 0
@@ -262,6 +271,7 @@ def cmd_up(ctx: dict[str, str]) -> int:
         raise SetupError(f"缺少编排文件: {COMPOSE_FILE}")
     compose = _resolve_compose_cmd()
     _run([*compose, "-f", str(COMPOSE_FILE), "up", "-d"], env=ctx["env"])
+    _print_session_persistence_hint()
     return 0
 
 
@@ -304,6 +314,7 @@ def cmd_update(ctx: dict[str, str], *, with_browser: bool = False) -> int:
     if with_browser:
         env.setdefault("OPENCLAW_INSTALL_BROWSER", "1")
     _run([*compose, "-f", str(COMPOSE_FILE), "up", "-d", "--build"], env=env)
+    _print_session_persistence_hint()
     return 0
 
 

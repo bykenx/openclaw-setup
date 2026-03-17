@@ -42,6 +42,16 @@
 ./cli.py logs
 ```
 
+## 后台运行（SSH 退出不停止）
+
+rootless Podman 在某些系统上会在用户会话全部退出（例如 SSH 全断开）后被系统回收，导致容器停止。
+
+启用 lingering 以保持后台运行：
+
+```bash
+sudo loginctl enable-linger $(id -un)
+```
+
 ## Token 与设备配对
 
 - 查看网关 token
